@@ -58,18 +58,21 @@ public class ApiExplorer{
             HashMap<String, String> result = new HashMap<String, String>();
             String img = null;
             String loc = null;
+            String tmEqk = null;
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
 
                 Element eElement = (Element) nNode;
                 img = getTagValue("img", eElement);
                 loc = getTagValue("loc", eElement);
+                tmEqk = getTagValue("tmEqk", eElement);
                 System.out.println("이미지 주소 : " + img);
                 System.out.println("위치 : " + loc);
-
+                System.out.println("시간 : " + tmEqk);
             }
             result.put("img", img);
             result.put("loc", loc);
+            result.put("tmEqk", tmEqk);
             return result;
         } catch (Exception e) {
             throw new RuntimeException(e);

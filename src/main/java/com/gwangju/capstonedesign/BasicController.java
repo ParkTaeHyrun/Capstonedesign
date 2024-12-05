@@ -18,6 +18,7 @@ public class BasicController {
         HashMap<String, String> result = apiExplorer.apicall();
         model.addAttribute("loc", result.get("loc"));
         model.addAttribute("img", result.get("img"));
+        model.addAttribute("tmEqk", result.get("tmEqk"));
         return "index.html";
     }
 
