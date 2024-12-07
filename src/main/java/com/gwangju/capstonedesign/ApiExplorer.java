@@ -1,5 +1,4 @@
 package com.gwangju.capstonedesign;
-import lombok.RequiredArgsConstructor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 
-@RequiredArgsConstructor
 public class ApiExplorer{
 
     public static List<Map<String, Object>> apicall(String startdate, String enddate) throws IOException, SAXException, ParserConfigurationException {
