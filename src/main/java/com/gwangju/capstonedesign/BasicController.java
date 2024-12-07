@@ -1,6 +1,7 @@
 package com.gwangju.capstonedesign;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +40,7 @@ public class BasicController {
 
     @GetMapping("/")
     String home(Model model){
-        List<Item> result = itemRepository.findAll();
+        List<Item> result = itemRepository.findAll(Sort.by(Sort.Direction.ASC, "tmEqk"));
         model.addAttribute("items", result);
         return "index.html";
     }

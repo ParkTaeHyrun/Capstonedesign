@@ -14,7 +14,7 @@
         <div class="col-sm-4" th:each="item : ${items}">
             <p><img th:src="@{${item.img}}" width="300" height="300"></p>
             <p th:text="${item.loc}"></p>
-            <p th:text="${item.tmEqk}"></p>
+            <p th:text="${#strings.substring(item.tmEqk,0,4)}+'년'+${#strings.substring(item.tmEqk,4,6)}+'월'+${#strings.substring(item.tmEqk,6,8)}+'일'+${#strings.substring(item.tmEqk,8,10)}+'시'+${#strings.substring(item.tmEqk,10,12)}+'분'"></p>
         </div>
     </div>
 
