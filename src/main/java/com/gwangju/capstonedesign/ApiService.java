@@ -29,7 +29,7 @@ import java.util.Map;
 public class ApiService {
     private final ItemRepository itemRepository;
 
-    @Scheduled(cron = "0 0 0/1 * * *")
+    @Scheduled(cron = "0 0 */12 * * *")
     public void callApi() throws IOException, ParserConfigurationException, SAXException {
         LocalDate today = LocalDate.now();
         String  enddate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
