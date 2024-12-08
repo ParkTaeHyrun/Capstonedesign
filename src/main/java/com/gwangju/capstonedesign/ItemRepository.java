@@ -1,9 +1,8 @@
 package com.gwangju.capstonedesign;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    List<Item> findBytmEqk(String tmEqk);
+    Optional findBytmEqk(String tmEqk);
 }

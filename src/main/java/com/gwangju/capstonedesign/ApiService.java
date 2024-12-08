@@ -1,4 +1,10 @@
 package com.gwangju.capstonedesign;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -7,18 +13,27 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Service
+@RequiredArgsConstructor
+@Component
+public class ApiService {
+    private final ItemRepository itemRepository;
 
-public class ApiExplorer{
-
-    public static List<Map<String, Object>> apicall(String startdate, String enddate) throws IOException, SAXException, ParserConfigurationException {
+    @Scheduled(cron = "0 0 0/1 * * *")
+    public void callApi() throws IOException, ParserConfigurationException, SAXException {
+        LocalDate today = LocalDate.now();
+        String  enddate = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String startdate = today.minusDays(3).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/EqkInfoService/getEqkMsg"); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("serviceKey", "UTF-8") + "=pMymGMt5TX3rHZyVz9agpEYhaZy678NqdYO0wNiji6THFStVZkXJUFfpOjgxNRu7E0d8yBetWXl3H68bcG60bA%3D%3D"); /*Service Key*/
         urlBuilder.append("&" + URLEncoder.encode("pageNo", "UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
@@ -35,37 +50,48 @@ public class ApiExplorer{
         doc.getDocumentElement().normalize();
 
         NodeList nList = doc.getElementsByTagName("item");
-
-        String img = null;
-        String loc = null;
-        String tmEqk = null;
         List<Map<String, Object>> resultitem = new ArrayList<Map<String, Object>>();
         for (int temp = 0; temp < nList.getLength(); temp++) {
             Node nNode = nList.item(temp);
 
             Element eElement = (Element) nNode;
-            img = getTagValue("img", eElement);
-            loc = getTagValue("loc", eElement);
-            tmEqk = getTagValue("tmEqk", eElement);
+            String img = getTagValue("img", eElement);
+            String loc = getTagValue("loc", eElement);
+            String tmEqk = getTagValue("tmEqk", eElement);
+            String mt = getTagValue("mt", eElement);
 
             System.out.println("이미지 주소 : " + img);
             System.out.println("위치 : " + loc);
             System.out.println("시간 : " + tmEqk);
+            System.out.println("규모 : " + mt);
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("img", img);
             result.put("loc", loc);
             result.put("tmEqk", tmEqk);
+            result.put("mt", mt);
             resultitem.add(result);
         }
-        return resultitem;
+        saveDB(resultitem);
     }
 
-    public static String getTagValue(String tag, Element eElement) {
-        String result = "";
+    public void saveDB(List<Map<String, Object>> resultitem) {
+        for (Map<String, Object> strMap : resultitem) {
+            var result = itemRepository.findBytmEqk(String.valueOf(strMap.get("tmEqk")));
+            if(result.isPresent()) {
+                continue;
+            }else {
+                Item item = new Item();
+                item.img = String.valueOf(strMap.get("img"));
+                item.loc = String.valueOf(strMap.get("loc"));
+                item.tmEqk = String.valueOf(strMap.get("tmEqk"));
+                item.mt = String.valueOf(strMap.get("mt"));
+                itemRepository.save(item);
+            }
+        }
+    }
 
-        NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
-        result = nlList.item(0).getTextContent();
-        return result;
+    public List<Item> findDB(){
+        return itemRepository.findAll(Sort.by(Sort.Direction.DESC,"tmEqk"));
     }
 
     public static String getTagValue(String tag, String childTag, Element eElement) {
@@ -83,4 +109,13 @@ public class ApiExplorer{
 
         return result;
     }
+
+    public static String getTagValue(String tag, Element eElement) {
+        String result = "";
+
+        NodeList nlList = eElement.getElementsByTagName(tag).item(0).getChildNodes();
+        result = nlList.item(0).getTextContent();
+        return result;
+    }
+
 }

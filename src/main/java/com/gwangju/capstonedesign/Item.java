@@ -13,4 +13,5 @@ public class Item {
     public String img;
     public String loc;
     public String tmEqk;
+    public String mt;
 }
